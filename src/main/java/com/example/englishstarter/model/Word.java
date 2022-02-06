@@ -3,8 +3,8 @@ package com.example.englishstarter.model;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.Objects;
 
+@EqualsAndHashCode
 @ToString
 @Data
 @AllArgsConstructor
@@ -21,19 +21,8 @@ public class Word {
     private String translate;
     private String transcription;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Word word = (Word) o;
-        return Objects.equals(id, word.id) &&
-                Objects.equals(english, word.english) &&
-                Objects.equals(translate, word.translate) &&
-                Objects.equals(transcription, word.transcription);
-    }
+    @ManyToOne
+    @JoinColumn(name = "users_id", updatable = false)
+    private User user;
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, english, translate, transcription);
-    }
 }

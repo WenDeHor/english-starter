@@ -1,0 +1,60 @@
+<!DOCTYPE HTML>
+<!--<html xmlns:th="http://www.thymeleaf.org" lang="an">-->
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html" lang="an">
+<!--<html xmlns:th="http://www.thymeleaf.org"-->
+<!--      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">-->
+<head>
+    <title>no</title>
+    <link rel="stylesheet" href="css/mine.css">
+</head>
+<div th:insert="blocks/library::library"></div>
+<div th:fragment="footer-first">
+    <footer>
+        <div class="card text-left">
+            <section class="jumbotron " style="background-color: rgba(196,246,255,0.34)">
+                <div class="container ">
+                    <div class="row justify-content-center">
+
+                        <div class="row row-cols-1 row-cols-md-3 g-4">
+                            <div class="col">
+                                <div class="card border-success h-100">
+                                    <div class="card-header">Traditions</div>
+                                    <div class="card-body">
+                                        <h5 class="card-title">Everyone is part of a great culture</h5>
+                                        <p class="card-text">Take care of them</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="card border-success h-100">
+                                    <div class="card-header">Emotions</div>
+                                    <div class="card-body">
+                                        <h5 class="card-title">They fill us with good, encourage and inspire us</h5>
+                                        <p class="card-text">Share them</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="card border-success h-100">
+                                    <div class="card-header">Autobiography</div>
+                                    <div class="card-body">
+                                        <h5 class="card-title">A unique story of a lifetime</h5>
+                                        <p class="card-text">She is incredible</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <br>
+                </div>
+                <div class="font-weight-lighter text-right text-info">
+                    <h5>starting version</h5>
+                </div>
+                <br>
+
+            </section>
+        </div>
+    </footer>
+</div>
+</html>
