@@ -2,27 +2,31 @@ package com.example.englishstarter.service;
 
 import com.example.englishstarter.model.Word;
 import com.example.englishstarter.repository.WordRepository;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
+@Component
 public class DownloadWords {
-    private static WordRepository wordRepository;
 
-    public static void main(String[] args) throws IOException {
-        getListWord(getListStringWords()).forEach(System.out::println);
+    private final WordRepository wordRepository;
+
+    public void downloadWorlds() {
+        List<Word> listWord = getListWord(getListStringWords());
+        System.out.println(listWord.size());
+        listWord.stream().map(a -> wordRepository.save(a)).forEach(System.out::println);
     }
 
-    private static List<Word> getListWord(List<String> collect) {
+    private List<Word> getListWord(List<String> collect) {
         List<Word> wordList = new ArrayList<>();
         int count = 1;
 
@@ -33,9 +37,10 @@ public class DownloadWords {
             word.setEnglish(collect.get(i));
             word.setTranslate(collect.get(i + 1));
             word.setTranscription(collect.get(i + 2));
+
+//            wordRepository.save(word);
             wordList.add(word);
-            wordRepository.save(word);
-            System.out.println(word);
+//            System.out.println(word);
         }
         for (int i = 4403; i < collect.size() - 1; i += 4) {
             Word word = new Word();
@@ -44,13 +49,13 @@ public class DownloadWords {
             word.setTranslate(collect.get(i + 1));
             word.setTranscription(collect.get(i + 2));
             wordList.add(word);
-            wordRepository.save(word);
-            System.out.println(word);
+//            wordRepository.save(word);
+//            System.out.println(word);
         }
         return wordList;
     }
 
-    private static List<String> getListStringWords()  {
+    private List<String> getListStringWords() {
         List<String> listURL = getListURL();
 
         List<String> stringList = new ArrayList<>();
@@ -73,7 +78,7 @@ public class DownloadWords {
         return stringList;
     }
 
-    private static List<String> getListURL() {
+    private List<String> getListURL() {
         List<String> listUrl = new ArrayList<>();
         for (int i = 1; i < 3; i++) {
             listUrl.add("http://en-to-ua.blogspot.com/2015/02/2000-" + i + ".html");

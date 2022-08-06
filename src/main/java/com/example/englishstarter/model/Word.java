@@ -6,9 +6,11 @@ import javax.persistence.*;
 
 @EqualsAndHashCode
 @ToString
-@Data
+//@Data
+@Getter
+@Setter
 @AllArgsConstructor
-@NoArgsConstructor
+@RequiredArgsConstructor
 @Builder
 @Entity
 @Table(name = "word")
@@ -21,8 +23,8 @@ public class Word {
     private String translate;
     private String transcription;
 
-    @ManyToOne
-    @JoinColumn(name = "users_id", updatable = false)
-    private User user;
+//    @ManyToOne
+//    @JoinColumn(name = "users_id", updatable = false)
+//    private User user;
 
 }

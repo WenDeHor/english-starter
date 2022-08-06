@@ -16,23 +16,23 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "users_id")
-    private Long idUser;
+    private Integer idUser;
 
     @Column(name = "login")
     private String login;//REGISTRATION PAGE
 
     @Column(name = "password")
     private String password;//REGISTRATION PAGE
-    @Enumerated(value = EnumType.STRING)
 
+    @Enumerated(value = EnumType.STRING)
     @Column(name = "role")
     private Role role;
 
-    @Column(name = "studied")
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<Word> studied;
-
-    @Column(name = "studying")
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<Word> studying;
+//    @Column(name = "studied")
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+//    private List<Word> studied;
+//
+//    @Column(name = "studying")
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+//    private List<Word> studying;
 }
