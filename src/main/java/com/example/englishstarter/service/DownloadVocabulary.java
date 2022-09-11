@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Component
-public class DownloadWords {
+public class DownloadVocabulary {
 
     private final WordRepository wordRepository;
 

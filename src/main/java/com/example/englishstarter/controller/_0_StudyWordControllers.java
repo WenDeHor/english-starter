@@ -1,13 +1,14 @@
 package com.example.englishstarter.controller;
 
-import com.example.englishstarter.model.StudyTable;
+import com.example.englishstarter.model.StudyTableWords;
 import com.example.englishstarter.model.User;
 import com.example.englishstarter.model.Word;
-import com.example.englishstarter.repository.StudyTableRepository;
+import com.example.englishstarter.repository.StudyTableWordsRepository;
 import com.example.englishstarter.repository.UserRepository;
 import com.example.englishstarter.repository.WordRepository;
 import com.example.englishstarter.security.UserDetailsImpl;
-import com.example.englishstarter.service.DownloadWords;
+import com.example.englishstarter.service.DownloadVerbs;
+import com.example.englishstarter.service.DownloadVocabulary;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -15,11 +16,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -27,11 +27,13 @@ import java.util.stream.Collectors;
 @Controller
 @RequiredArgsConstructor
 public class _0_StudyWordControllers {
-    private final DownloadWords downloadWords;
+    private final DownloadVocabulary downloadVocabulary;
     private final UserRepository userRepository;
     private final WordRepository wordRepository;
-    private final StudyTableRepository studyTableRepository;
-
+    private final StudyTableWordsRepository studyTableWordsRepository;
+    private final DownloadVerbs downloadVerbs;
+    private final LoaderPhoto loaderPhoto;
+    private final  LocalDate DATE_NOW = LocalDate.now();
     private final int SIZE_LIST_WORDS = 10;
     private final int DATE_ONE = 3;
     private final int DATE_TWO = 7;
@@ -40,19 +42,20 @@ public class _0_StudyWordControllers {
     @GetMapping("/downloadWords")
     public String downloadWords(Model model) {
         model.addAttribute("title", "IVAN and FATHER");
-        downloadWords.downloadWorlds();
+        downloadVocabulary.downloadWorlds();
         return "mine-page";
     }
 
     @GetMapping("/")
-    public String home(Model model) {
+    public String home(Model model)  {
+        model.addAttribute("image",  loaderPhoto.getImage());
         model.addAttribute("title", "IVAN and FATHER");
         return "mine-page";
     }
 
     @Transactional
     @GetMapping("/user-page")
-    public String userSecondLoad(Authentication authentication, Model model, MultipartFile file) {
+    public String userSecondLoad(Authentication authentication, Model model) {
         String loginUser = getLoginUser(authentication);
         if (loginUser != null) {
             return "redirect:/user-study-word";
@@ -81,35 +84,34 @@ public class _0_StudyWordControllers {
     }
 
     private List<Integer> getIdWordsForToday(Authentication authentication) {
-        return studyTableRepository.findAll().stream()
+        return studyTableWordsRepository.findAll().stream()
                 .filter(userId -> userId.getLoginUser().equals(getLoginUser(authentication)))
-                .map(StudyTable::getIdWord)
+                .map(StudyTableWords::getIdWord)
                 .sorted()
                 .collect(Collectors.toList());
     }
 
     private Long countLearnedWords(Authentication authentication) {
-        return studyTableRepository.findAll().stream()
+        return studyTableWordsRepository.findAll().stream()
                 .filter(userId -> userId.getLoginUser().equals(getLoginUser(authentication)))
                 .filter(el -> el.getLearned().equals(true))
-                .map(StudyTable::getLearned)
+                .map(StudyTableWords::getLearned)
                 .count();
     }
 
     @GetMapping("/user-study-word/{id}/learned")
     public String userSaveWordToStudyTable(@PathVariable(value = "id") Integer id, Authentication authentication) {
-        LocalDate date = LocalDate.now();
-        StudyTable studyTableNew = new StudyTable();
-        studyTableNew.setIdWord(Math.toIntExact(id));
-        studyTableNew.setLoginUser(getLoginUser(authentication));
-        studyTableNew.setDateOne(date.plusDays(DATE_ONE));
-        studyTableNew.setDateTwo(date.plusDays(DATE_TWO));
-        studyTableNew.setDateThree(date.plusDays(DATE_THREE));
-        studyTableNew.setLearned(false);
-        studyTableNew.setCount(0);
-        studyTableNew.setDateCount(date);
-        System.out.println(studyTableNew);
-        studyTableRepository.save(studyTableNew);
+        StudyTableWords studyTableWordsNew = new StudyTableWords();
+        studyTableWordsNew.setIdWord(Math.toIntExact(id));
+        studyTableWordsNew.setLoginUser(getLoginUser(authentication));
+        studyTableWordsNew.setDateOne(DATE_NOW.plusDays(DATE_ONE));
+        studyTableWordsNew.setDateTwo(DATE_NOW.plusDays(DATE_TWO));
+        studyTableWordsNew.setDateThree(DATE_NOW.plusDays(DATE_THREE));
+        studyTableWordsNew.setLearned(false);
+        studyTableWordsNew.setCount(0);
+        studyTableWordsNew.setDateCount(DATE_NOW);
+        System.out.println(studyTableWordsNew);
+        studyTableWordsRepository.save(studyTableWordsNew);
         return "redirect:/user-study-word";
     }
 
@@ -135,36 +137,34 @@ public class _0_StudyWordControllers {
 
     @GetMapping("/user-study-word/{id}/repeat")
     public String userSaveRepeat(@PathVariable(value = "id") Integer id) {
-        Optional<StudyTable> byId = studyTableRepository.findByIdWord(id);
-        LocalDate date = LocalDate.now();
-
+        Optional<StudyTableWords> byId = studyTableWordsRepository.findByIdWord(id);
         if (byId.isPresent()) {
-            StudyTable studyTable = byId.get();
-            if (studyTable.getCount() == 3) {
-                studyTable.setCount(studyTable.getCount() + 1);
-                studyTable.setLearned(true);
-                studyTableRepository.save(studyTable);
-                System.out.println(studyTable);
+            StudyTableWords studyTableWords = byId.get();
+            if (studyTableWords.getCount() == 3) {
+                studyTableWords.setCount(studyTableWords.getCount() + 1);
+                studyTableWords.setLearned(true);
+                studyTableWordsRepository.save(studyTableWords);
+                System.out.println(studyTableWords);
             }
-            studyTable.setDateCount(date);
-            studyTable.setCount(studyTable.getCount() + 1);
-            System.out.println(studyTable);
-            studyTableRepository.save(studyTable);
+            studyTableWords.setDateCount(DATE_NOW);
+            studyTableWords.setCount(studyTableWords.getCount() + 1);
+            System.out.println(studyTableWords);
+            studyTableWordsRepository.save(studyTableWords);
         }
         return "redirect:/user-study-word/repeat";
     }
 
 
     private List<Integer> getFilteredListIdOfWords(Authentication authentication) {
-        LocalDate date = LocalDate.now();
-        return studyTableRepository.findAll().stream()
+        return studyTableWordsRepository.findAll().stream()
                 .filter(userId -> userId.getLoginUser().equals(getLoginUser(authentication)))
-                .filter(d1 -> d1.getDateOne().equals(date)
-                        || d1.getDateTwo().equals(date)
-                        || d1.getDateThree().equals(date))
+                .filter(d1 -> d1.getDateOne().equals(DATE_NOW)
+                        || d1.getDateTwo().equals(DATE_NOW)
+                        || d1.getDateThree().equals(DATE_NOW))
                 .filter(learned -> learned.getLearned().equals(false))
-                .filter(countDate -> !countDate.getDateCount().equals(date))
-                .map(StudyTable::getIdWord)
+                .filter(countDate -> !countDate.getDateCount().equals(DATE_NOW))
+                .filter(count -> count.getCount() <= 3)
+                .map(StudyTableWords::getIdWord)
                 .sorted()
                 .collect(Collectors.toList());
     }

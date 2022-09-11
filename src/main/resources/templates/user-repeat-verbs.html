@@ -19,11 +19,11 @@
                 <div class="col-md-2">
                     <a href="/user-study-word" class="btn btn-info btn-lg btn-block">StudyWord</a>
                     <br>
-                    <a href="/user-study-word/repeat" class="btn btn-warning btn-lg btn-block">RepeatWord</a>
+                    <a href="/user-study-word/repeat" class="btn btn-info btn-lg btn-block">RepeatWord</a>
                     <br>
                     <a href="/user-study-verbs" class="btn btn-info btn-lg btn-block">StudyVerb</a>
                     <br>
-                    <a href="/user-study-verbs/repeat" class="btn btn-info btn-lg btn-block">RepeatVerb</a>
+                    <a href="/user-study-verbs/repeat" class="btn btn-warning btn-lg btn-block">RepeatVerb</a>
                     <br>
                     <form action="/logout" method="post">
                         <button class="btn btn-lg btn-secondary btn-block" type="submit">LOGOUT</button>
@@ -32,28 +32,35 @@
 
                 </div>
                 <div class="col-md-10">
-                    <div th:each="count:${countLearnedWords}">
-                        <h6 class="text-right" th:text="'Words are learned : '+${count}"></h6>
+                    <div th:each="count:${countLearnedVerbs}">
+                        <h6 class="text-right" th:text="'Verbs are learned : '+${count}"></h6>
                     </div>
 
                     <table class="table">
                         <thead class="thead-dark">
                         <tr>
                             <th><h6></h6></th>
-                            <th><h6>English</h6></th>
+                            <th><h6>Infinitive</h6></th>
+                            <th><h6>Transcription</h6></th>
+                            <th><h6>Past Simple</h6></th>
+                            <th><h6>Transcription</h6></th>
+                            <th><h6>Past Participle</h6></th>
                             <th><h6>Transcription</h6></th>
                             <th><h6>Translate</h6></th>
-<!--                            <th><h6></h6></th>-->
                             <th><h6></h6></th>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="word, iterator:${wordList}" class="alert alert-info mt-2">
+                        <tr th:each="verbs, iterator:${repeatVerbs}" class="alert alert-info mt-2">
                             <td th:text="${iterator.index+1}"></td>
-                            <td><span th:text="${word.english}"></span></td>
-                            <td><span th:text="${word.transcription}"></span></td>
-                            <td><span th:text="${word.translate}"></span></td>
-                            <td><a th:href="'/user-study-word/'+${word.id}+'/repeat'"
+                            <td><span th:text="${verbs.infinitive}"></span></td>
+                            <td><span th:text="${verbs.infinitiveTranscription}"></span></td>
+                            <td><span th:text="${verbs.pastSimple}"></span></td>
+                            <td><span th:text="${verbs.pastSimpleTranscription}"></span></td>
+                            <td><span th:text="${verbs.pastParticiple}"></span></td>
+                            <td><span th:text="${verbs.pastParticipleTranscription}"></span></td>
+                            <td><span th:text="${verbs.translate}"></span></td>
+                            <td><a th:href="'/user-study-verb/'+${verbs.id}+'/repeat'"
                                    class="btn btn-warning " tabindex="-1" role="button" aria-disabled="true">REPEAT</a></td>
                         </tr>
 

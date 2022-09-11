@@ -15,6 +15,10 @@
                 <div class="col-md-1">
                 </div>
                 <div class="col-md-10">
+                    <div th:each="el:${image}" class="alert mt-2">
+                        <img class="mx-auto d-block" th:src="'data:image/jpg;base64,' + ${el}"
+                             style="width:100%" alt="English starter"/>
+                    </div>
                     <h4>Класифікація рівнів за традиційною методикою вивчення англійської, як другої мови (ESL levels):</h4>
                     <ol>
                         <li><b>Beginners / Elementary (A1) — Початковий / елементарний</b><br>

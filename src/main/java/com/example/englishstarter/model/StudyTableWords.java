@@ -12,8 +12,8 @@ import java.util.Date;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "study_table")
-public class StudyTable {
+@Table(name = "study_table_words")
+public class StudyTableWords {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
