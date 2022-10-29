@@ -31,10 +31,11 @@ public class _1_StudyVerbsController {
     private final StudyTableVerbsRepository studyTableVerbsRepository;
     private final DownloadVerbs downloadVerbs;
     private final  LocalDate DATE_NOW = LocalDate.now();
-    private final int SIZE_LIST_WORDS = 10;
+    private final int SIZE_LIST_WORDS = 5;
     private final int DATE_ONE = 3;
     private final int DATE_TWO = 7;
     private final int DATE_THREE = 12;
+    private final int DATE_LOST = 13;
 
     @GetMapping("/downloadVerbs")
     public String downloadVerbs(Model model) {
@@ -106,6 +107,15 @@ public class _1_StudyVerbsController {
 
     private List<Verbs> getRepeatVerbs(Authentication authentication) {
         List<Integer> filteredListIdOfWords = getFilteredListIdOfVerbs(authentication);
+        if (filteredListIdOfWords.size() == 0) {
+            List<Integer> filteredListIdOfWordsIfLostTime = getFilteredListIdOfVerbsIfLostTime(authentication);
+            return findWord(filteredListIdOfWordsIfLostTime);
+        } else {
+            return findWord(filteredListIdOfWords);
+        }
+    }
+
+    private List<Verbs> findWord(List<Integer> filteredListIdOfWords) {
         List<Verbs> convertToWord = new ArrayList<>();
         for (Integer filteredListIdOfWord : filteredListIdOfWords) {
             Optional<Verbs> byId = verbsRepository.findById(filteredListIdOfWord);
@@ -154,7 +164,16 @@ public class _1_StudyVerbsController {
         return oneByLogin.map(User::getLogin).orElse(null);
     }
 
-
+    private List<Integer>  getFilteredListIdOfVerbsIfLostTime(Authentication authentication) {
+        return studyTableVerbsRepository.findAll().stream()
+                .filter(userId -> userId.getLoginUser().equals(getLoginUser(authentication)))
+                .filter(learned -> learned.getLearned().equals(false))
+                .filter(count -> count.getCount() <= 3)
+                .filter(day -> DATE_NOW.isAfter(day.getDateCount().plusDays(DATE_LOST)))
+                .map(StudyTableVerbs::getIdWord)
+                .sorted()
+                .collect(Collectors.toList());
+    }
 
 
 }

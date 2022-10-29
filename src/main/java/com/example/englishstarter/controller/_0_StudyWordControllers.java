@@ -17,7 +17,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,11 +32,12 @@ public class _0_StudyWordControllers {
     private final StudyTableWordsRepository studyTableWordsRepository;
     private final DownloadVerbs downloadVerbs;
     private final LoaderPhoto loaderPhoto;
-    private final  LocalDate DATE_NOW = LocalDate.now();
-    private final int SIZE_LIST_WORDS = 10;
+    private final LocalDate DATE_NOW = LocalDate.now();
+    private final int SIZE_LIST_WORDS = 5;
     private final int DATE_ONE = 3;
     private final int DATE_TWO = 7;
     private final int DATE_THREE = 12;
+    private final int DATE_LOST = 13;
 
     @GetMapping("/downloadWords")
     public String downloadWords(Model model) {
@@ -47,8 +47,8 @@ public class _0_StudyWordControllers {
     }
 
     @GetMapping("/")
-    public String home(Model model)  {
-        model.addAttribute("image",  loaderPhoto.getImage());
+    public String home(Model model) {
+        model.addAttribute("image", loaderPhoto.getImage());
         model.addAttribute("title", "IVAN and FATHER");
         return "mine-page";
     }
@@ -127,6 +127,15 @@ public class _0_StudyWordControllers {
 
     private List<Word> getRepeatWords(Authentication authentication) {
         List<Integer> filteredListIdOfWords = getFilteredListIdOfWords(authentication);
+        if (filteredListIdOfWords.size() == 0) {
+            List<Integer> filteredListIdOfWordsIfLostTime = getFilteredListIdOfWordsIfLostTime(authentication);
+            return findWord(filteredListIdOfWordsIfLostTime);
+        } else {
+            return findWord(filteredListIdOfWords);
+        }
+    }
+
+    private List<Word> findWord(List<Integer> filteredListIdOfWords) {
         List<Word> convertToWord = new ArrayList<>();
         for (Integer filteredListIdOfWord : filteredListIdOfWords) {
             Optional<Word> byId = wordRepository.findById(filteredListIdOfWord);
@@ -168,6 +177,18 @@ public class _0_StudyWordControllers {
                 .sorted()
                 .collect(Collectors.toList());
     }
+
+    private List<Integer> getFilteredListIdOfWordsIfLostTime(Authentication authentication) {
+        return studyTableWordsRepository.findAll().stream()
+                .filter(userId -> userId.getLoginUser().equals(getLoginUser(authentication)))
+                .filter(learned -> learned.getLearned().equals(false))
+                .filter(count -> count.getCount() <= 3)
+                .filter(day -> DATE_NOW.isAfter(day.getDateCount().plusDays(DATE_LOST)))
+                .map(StudyTableWords::getIdWord)
+                .sorted()
+                .collect(Collectors.toList());
+    }
+
 
     private String getLoginUser(Authentication authentication) {
         UserDetailsImpl details = (UserDetailsImpl) authentication.getPrincipal();
