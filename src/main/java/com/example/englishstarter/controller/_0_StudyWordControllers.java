@@ -181,11 +181,12 @@ public class _0_StudyWordControllers {
     private List<Integer> getFilteredListIdOfWordsIfLostTime(Authentication authentication) {
         return studyTableWordsRepository.findAll().stream()
                 .filter(userId -> userId.getLoginUser().equals(getLoginUser(authentication)))
-                .filter(learned -> learned.getLearned().equals(false))
+//                .filter(learned -> learned.getLearned().equals(false))
                 .filter(count -> count.getCount() <= 3)
                 .filter(day -> DATE_NOW.isAfter(day.getDateCount().plusDays(DATE_LOST)))
                 .map(StudyTableWords::getIdWord)
                 .sorted()
+                .limit(SIZE_LIST_WORDS)
                 .collect(Collectors.toList());
     }
 
