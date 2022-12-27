@@ -1,5 +1,6 @@
 package com.example.englishstarter.controller;
 
+import com.example.englishstarter.model.StudyTableVerbs;
 import com.example.englishstarter.model.StudyTableWords;
 import com.example.englishstarter.model.User;
 import com.example.englishstarter.model.Word;
@@ -9,6 +10,7 @@ import com.example.englishstarter.repository.WordRepository;
 import com.example.englishstarter.security.UserDetailsImpl;
 import com.example.englishstarter.service.DownloadVerbs;
 import com.example.englishstarter.service.DownloadVocabulary;
+import com.example.englishstarter.service.WorldRepositoryImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -24,20 +26,41 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
-@RequiredArgsConstructor
 public class _0_StudyWordControllers {
-    private final DownloadVocabulary downloadVocabulary;
-    private final UserRepository userRepository;
-    private final WordRepository wordRepository;
-    private final StudyTableWordsRepository studyTableWordsRepository;
-    private final DownloadVerbs downloadVerbs;
-    private final LoaderPhoto loaderPhoto;
+    private DownloadVocabulary downloadVocabulary;
+    private UserRepository userRepository;
+    private WordRepository wordRepository;
+//    private WorldRepositoryImpl worldRepositoryImpl;
+    private StudyTableWordsRepository studyTableWordsRepository;
+    private DownloadVerbs downloadVerbs;
+    private LoaderPhoto loaderPhoto;
+    private List<Word> wordRepositoryAll;
     private final LocalDate DATE_NOW = LocalDate.now();
-    private final int SIZE_LIST_WORDS = 5;
+    private final int SIZE_LIST_WORDS = 3;
     private final int DATE_ONE = 3;
     private final int DATE_TWO = 7;
     private final int DATE_THREE = 12;
     private final int DATE_LOST = 13;
+
+    public _0_StudyWordControllers(DownloadVocabulary downloadVocabulary, UserRepository userRepository, WordRepository wordRepository, StudyTableWordsRepository studyTableWordsRepository, DownloadVerbs downloadVerbs, LoaderPhoto loaderPhoto, List<Word> wordRepositoryAll) {
+        this.downloadVocabulary = downloadVocabulary;
+        this.userRepository = userRepository;
+        this.wordRepository = wordRepository;
+        this.studyTableWordsRepository = studyTableWordsRepository;
+        this.downloadVerbs = downloadVerbs;
+        this.loaderPhoto = loaderPhoto;
+        this.wordRepositoryAll = wordRepositoryAll;
+    }
+//    public _0_StudyWordControllers(DownloadVocabulary downloadVocabulary, UserRepository userRepository, WordRepository wordRepository, WorldRepositoryImpl worldRepositoryImpl, StudyTableWordsRepository studyTableWordsRepository, DownloadVerbs downloadVerbs, LoaderPhoto loaderPhoto, List<Word> wordRepositoryAll) {
+//        this.downloadVocabulary = downloadVocabulary;
+//        this.userRepository = userRepository;
+//        this.wordRepository = wordRepository;
+//        this.worldRepositoryImpl = worldRepositoryImpl;
+//        this.studyTableWordsRepository = studyTableWordsRepository;
+//        this.downloadVerbs = downloadVerbs;
+//        this.loaderPhoto = loaderPhoto;
+//        this.wordRepositoryAll = wordRepositoryAll;
+//    }
 
     @GetMapping("/downloadWords")
     public String downloadWords(Model model) {
@@ -48,6 +71,8 @@ public class _0_StudyWordControllers {
 
     @GetMapping("/")
     public String home(Model model) {
+        List<Word> all = wordRepository.findAll();
+        wordRepositoryAll.addAll(all);
         model.addAttribute("image", loaderPhoto.getImage());
         model.addAttribute("title", "IVAN and FATHER");
         return "mine-page";
@@ -75,7 +100,10 @@ public class _0_StudyWordControllers {
     }
 
     private List<Word> getStudyWords(Authentication authentication) {
-        List<Word> wordRepositoryAll = wordRepository.findAll();
+        if (wordRepositoryAll.size() == 0) {
+            wordRepositoryAll = wordRepository.findAll();
+        }
+//        List<Word> wordRepositoryAll = wordRepository.findAll();
         List<Integer> idListWords = getIdWordsForToday(authentication);
         return wordRepositoryAll.stream()
                 .filter(all -> !idListWords.contains(all.getId()))
@@ -101,18 +129,28 @@ public class _0_StudyWordControllers {
 
     @GetMapping("/user-study-word/{id}/learned")
     public String userSaveWordToStudyTable(@PathVariable(value = "id") Integer id, Authentication authentication) {
-        StudyTableWords studyTableWordsNew = new StudyTableWords();
-        studyTableWordsNew.setIdWord(Math.toIntExact(id));
-        studyTableWordsNew.setLoginUser(getLoginUser(authentication));
-        studyTableWordsNew.setDateOne(DATE_NOW.plusDays(DATE_ONE));
-        studyTableWordsNew.setDateTwo(DATE_NOW.plusDays(DATE_TWO));
-        studyTableWordsNew.setDateThree(DATE_NOW.plusDays(DATE_THREE));
-        studyTableWordsNew.setLearned(false);
-        studyTableWordsNew.setCount(0);
-        studyTableWordsNew.setDateCount(DATE_NOW);
-        System.out.println(studyTableWordsNew);
+        StudyTableWords studyTableWordsNew = createStudyTableWords(Math.toIntExact(id), getLoginUser(authentication), false, 0);
         studyTableWordsRepository.save(studyTableWordsNew);
         return "redirect:/user-study-word";
+    }
+
+    @GetMapping("/user-study-word/{id}/learned-all")
+    public String userSaveWordToStudyTableAll(@PathVariable(value = "id") Integer id, Authentication authentication) {
+        StudyTableWords studyTableWordsNew = createStudyTableWords(Math.toIntExact(id), getLoginUser(authentication), true, 5);
+        studyTableWordsRepository.save(studyTableWordsNew);
+        return "redirect:/user-study-word";
+    }
+
+    private StudyTableWords createStudyTableWords(Integer id, String login, Boolean learned, Integer count) {
+        return new StudyTableWords(
+                Math.toIntExact(id),
+                login,
+                DATE_NOW.plusDays(DATE_ONE),
+                DATE_NOW.plusDays(DATE_TWO),
+                DATE_NOW.plusDays(DATE_THREE),
+                learned,
+                count,
+                DATE_NOW);
     }
 
     @Transactional
@@ -153,11 +191,9 @@ public class _0_StudyWordControllers {
                 studyTableWords.setCount(studyTableWords.getCount() + 1);
                 studyTableWords.setLearned(true);
                 studyTableWordsRepository.save(studyTableWords);
-                System.out.println(studyTableWords);
             }
             studyTableWords.setDateCount(DATE_NOW);
             studyTableWords.setCount(studyTableWords.getCount() + 1);
-            System.out.println(studyTableWords);
             studyTableWordsRepository.save(studyTableWords);
         }
         return "redirect:/user-study-word/repeat";

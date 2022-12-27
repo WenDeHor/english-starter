@@ -2,6 +2,8 @@ package com.example.englishstarter.service;
 
 import com.example.englishstarter.model.Word;
 import com.example.englishstarter.repository.WordRepository;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -14,11 +16,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
+@NoArgsConstructor
+//@AllArgsConstructor
 @Component
 public class DownloadVocabulary {
 
-    private final WordRepository wordRepository;
+    private  WordRepository wordRepository;
+
+    public DownloadVocabulary(WordRepository wordRepository) {
+        this.wordRepository = wordRepository;
+    }
 
     public void downloadWorlds() {
         List<Word> listWord = getListWord(getListStringWords());

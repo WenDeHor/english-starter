@@ -32,19 +32,18 @@ public class RegistrationServiceImpl implements RegistrationService {
         Optional<User> adminPresent = usersRepository.findOneByRole(Role.ADMIN);
 
         if (!adminPresent.isPresent()) {
-            User user = User.builder()
-                    .login(userForm.getLogin())
-                    .password(hashPassword)
-                    .role(Role.ADMIN)
-                    .build();
+            User user=new User();
+            user.setLogin(userForm.getLogin());
+            user.setPassword(hashPassword);
+            user.setRole(Role.ADMIN);
+
             System.out.println(user.toString());
             usersRepository.save(user);
         } else {
-            User user = User.builder()
-                    .login(userForm.getLogin())
-                    .password(hashPassword)
-                    .role(Role.USER)
-                    .build();
+            User user=new User();
+            user.setLogin(userForm.getLogin());
+            user.setPassword(hashPassword);
+            user.setRole(Role.USER);
             System.out.println(user.toString());
             usersRepository.save(user);
         }

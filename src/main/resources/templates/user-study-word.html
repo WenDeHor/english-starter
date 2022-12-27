@@ -44,6 +44,7 @@
                             <th><h6>Transcription</h6></th>
                             <th><h6>Translate</h6></th>
                             <th><h6></h6></th>
+                            <th><h6></h6></th>
                         </tr>
                         </thead>
                         <tbody>
@@ -53,7 +54,9 @@
                             <td><span th:text="${word.transcription}"></span></td>
                             <td><span th:text="${word.translate}"></span></td>
                             <td><a th:href="'/user-study-word/'+${word.id}+'/learned'"
-                                   class="btn btn-warning " tabindex="-1" role="button" aria-disabled="true">LEARNED</a></td>
+                                   class="btn btn-warning " tabindex="-1" role="button" aria-disabled="true">Learned</a></td>
+                            <td><a th:href="'/user-study-word/'+${word.id}+'/learned-all'"
+                                   class="btn btn-info " tabindex="-1" role="button" aria-disabled="true">I_now_it</a></td>
                         </tr>
 
                         </tbody>

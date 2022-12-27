@@ -18,7 +18,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Component
 public class DownloadVerbs {
-    private final VerbsRepository verbsRepository;
+
+    private VerbsRepository verbsRepository;
+
+    public DownloadVerbs(VerbsRepository verbsRepository) {
+        this.verbsRepository = verbsRepository;
+    }
 
     public void saveVerbsToData() {
         List<String> listE = getListE();

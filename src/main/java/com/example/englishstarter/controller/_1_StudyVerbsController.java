@@ -8,6 +8,7 @@ import com.example.englishstarter.security.UserDetailsImpl;
 import com.example.englishstarter.service.DownloadVerbs;
 import com.example.englishstarter.service.DownloadVocabulary;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,20 +23,27 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
-@RequiredArgsConstructor
 public class _1_StudyVerbsController {
 
-    private final DownloadVocabulary downloadVocabulary;
-    private final UserRepository userRepository;
-    private final VerbsRepository verbsRepository;
-    private final StudyTableVerbsRepository studyTableVerbsRepository;
-    private final DownloadVerbs downloadVerbs;
-    private final  LocalDate DATE_NOW = LocalDate.now();
-    private final int SIZE_LIST_WORDS = 5;
+    private DownloadVocabulary downloadVocabulary;
+    private UserRepository userRepository;
+    private VerbsRepository verbsRepository;
+    private StudyTableVerbsRepository studyTableVerbsRepository;
+    private DownloadVerbs downloadVerbs;
+    private final LocalDate DATE_NOW = LocalDate.now();
+    private final int SIZE_LIST_WORDS = 3;
     private final int DATE_ONE = 3;
     private final int DATE_TWO = 7;
     private final int DATE_THREE = 12;
     private final int DATE_LOST = 13;
+
+    public _1_StudyVerbsController(DownloadVocabulary downloadVocabulary, UserRepository userRepository, VerbsRepository verbsRepository, StudyTableVerbsRepository studyTableVerbsRepository, DownloadVerbs downloadVerbs) {
+        this.downloadVocabulary = downloadVocabulary;
+        this.userRepository = userRepository;
+        this.verbsRepository = verbsRepository;
+        this.studyTableVerbsRepository = studyTableVerbsRepository;
+        this.downloadVerbs = downloadVerbs;
+    }
 
     @GetMapping("/downloadVerbs")
     public String downloadVerbs(Model model) {
@@ -81,18 +89,29 @@ public class _1_StudyVerbsController {
 
     @GetMapping("/user-study-verb/{id}/learned")
     public String userSaveWordToStudyTable(@PathVariable(value = "id") Integer id, Authentication authentication) {
-        StudyTableVerbs studyTableVerbs = new StudyTableVerbs();
-        studyTableVerbs.setIdWord(Math.toIntExact(id));
-        studyTableVerbs.setLoginUser(getLoginUser(authentication));
-        studyTableVerbs.setDateOne(DATE_NOW.plusDays(DATE_ONE));
-        studyTableVerbs.setDateTwo(DATE_NOW.plusDays(DATE_TWO));
-        studyTableVerbs.setDateThree(DATE_NOW.plusDays(DATE_THREE));
-        studyTableVerbs.setLearned(false);
-        studyTableVerbs.setCount(0);
-        studyTableVerbs.setDateCount(DATE_NOW);
-        System.out.println(studyTableVerbs);
+        StudyTableVerbs studyTableVerbs = createStudyTableVerbs(id, getLoginUser(authentication), false, 0);
         studyTableVerbsRepository.save(studyTableVerbs);
         return "redirect:/user-study-verbs";
+    }
+
+    @GetMapping("/user-study-verb/{id}/learned-all")
+    public String userSaveWordToStudyTableAll(@PathVariable(value = "id") Integer id, Authentication authentication) {
+        StudyTableVerbs studyTableVerbs = createStudyTableVerbs(id, getLoginUser(authentication), true, 5);
+        studyTableVerbsRepository.save(studyTableVerbs);
+        return "redirect:/user-study-verbs";
+    }
+
+    private StudyTableVerbs createStudyTableVerbs(Integer id, String login, Boolean learned,
+                                                  Integer count) {
+        return new StudyTableVerbs(
+                Math.toIntExact(id),
+                login,
+                DATE_NOW.plusDays(DATE_ONE),
+                DATE_NOW.plusDays(DATE_TWO),
+                DATE_NOW.plusDays(DATE_THREE),
+                learned,
+                count,
+                DATE_NOW);
     }
 
     @Transactional
@@ -164,7 +183,7 @@ public class _1_StudyVerbsController {
         return oneByLogin.map(User::getLogin).orElse(null);
     }
 
-    private List<Integer>  getFilteredListIdOfVerbsIfLostTime(Authentication authentication) {
+    private List<Integer> getFilteredListIdOfVerbsIfLostTime(Authentication authentication) {
         return studyTableVerbsRepository.findAll().stream()
                 .filter(userId -> userId.getLoginUser().equals(getLoginUser(authentication)))
 //                .filter(learned -> learned.getLearned().equals(false))
